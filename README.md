@@ -8,13 +8,14 @@ A FastAPI-based backend API for a skills-based hiring platform that supports can
 - User registration and login
 - Challenge management (create, view, list)
 - Submission handling (submit solutions, view submissions)
-- Optional AI match suggestions
+- AI-powered match suggestions using LLM semantic analysis
 - Optional file upload support for challenges and submissions
 
 ## Prerequisites
 
 - Python 3.12 or higher
 - pip (Python package manager)
+- Groq API key (for AI matching feature)
 
 ## Installation
 
@@ -32,10 +33,10 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. Install dependencies:
+3. Install the package in development mode:
 
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
 
 4. Create a `.env` file in the root directory with the following content:
@@ -45,6 +46,7 @@ SECRET_KEY=your_secret_key_here
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 DATABASE_URL=sqlite:///./skills_platform.db
+GROQ_API_KEY=your_groq_api_key_here  # Get this from https://console.groq.com/
 ```
 
 ## Running the Application
@@ -83,9 +85,14 @@ Once the server is running, you can access:
 - `GET /submissions` - List all submissions (company only)
 - `GET /submissions/my` - List user's submissions (candidate only)
 
-### Optional Features
+### AI Match Suggestions
 
-- `GET /match/suggestions` - Get AI-based match suggestions (company only)
+- `GET /match/suggestions` - Get AI-based match suggestions between challenges and submissions (company only)
+
+This endpoint uses semantic analysis powered by Groq's LLM API to identify the best matches between company challenges and candidate submissions. It analyzes the skills, technologies, and concepts mentioned in both challenges and submissions, then calculates similarity scores to suggest the most promising candidates for each challenge.
+
+### File Uploads
+
 - `POST /upload/challenge/{id}/attachment` - Upload challenge attachment (company only)
 - `POST /upload/submission/{id}/file` - Upload submission file (candidate only)
 
@@ -116,7 +123,8 @@ Once the server is running, you can access:
 ├── .env
 ├── .gitignore
 ├── main.py
-├── requirements.txt
+├── pyproject.toml
+├── setup.py
 └── README.md
 ```
 
@@ -129,6 +137,19 @@ The project uses:
 - JWT for authentication
 - Pydantic for data validation
 - uvicorn for ASGI server
+- Groq API for AI-powered matching
+- PEP 621 compliant dependency management via pyproject.toml
+
+## AI Matching Implementation
+
+The AI matching system works by:
+
+1. Analyzing challenge descriptions using LLM to extract key skills, technologies, and concepts
+2. Analyzing submission content to extract demonstrated skills and approaches
+3. Calculating similarity scores between challenges and submissions based on semantic overlap
+4. Providing detailed match reasons based on the specific skills that aligned
+
+This approach enables companies to find the most qualified candidates based on the content of their submissions rather than simple keyword matching.
 
 ## Security Notes
 
